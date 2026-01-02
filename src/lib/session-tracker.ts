@@ -155,6 +155,38 @@ export async function getActiveSessionsByRole(): Promise<Record<string, number>>
 }
 
 /**
+ * Get session statistics
+ */
+export async function getSessionStats(): Promise<{
+  totalSessions: number;
+  activeSessions: number;
+  averageSessionDuration: number;
+  peakConcurrentUsers: number;
+}> {
+  try {
+    const activeSessions = await getActiveSessions();
+    const activeCount = activeSessions.length;
+
+    // For now, return basic stats. In a real implementation,
+    // you might track historical data for more detailed stats
+    return {
+      totalSessions: activeCount, // This would be historical total in a real app
+      activeSessions: activeCount,
+      averageSessionDuration: SESSION_TIMEOUT * 1000, // Convert to milliseconds
+      peakConcurrentUsers: activeCount, // This would be tracked separately
+    };
+  } catch (error) {
+    console.error('Error getting session stats:', error);
+    return {
+      totalSessions: 0,
+      activeSessions: 0,
+      averageSessionDuration: 0,
+      peakConcurrentUsers: 0,
+    };
+  }
+}
+
+/**
  * Clean up expired sessions
  */
 export async function cleanupExpiredSessions(): Promise<number> {
@@ -162,17 +194,17 @@ export async function cleanupExpiredSessions(): Promise<number> {
     const redis = await getRedisClient();
     const userIds = await redis.smembers(ACTIVE_USERS_KEY);
     let cleanedCount = 0;
-    
+
     for (const userId of userIds) {
       const sessionKey = `${SESSION_KEY_PREFIX}${userId}`;
       const exists = await redis.exists(sessionKey);
-      
+
       if (!exists) {
         await redis.srem(ACTIVE_USERS_KEY, userId);
         cleanedCount++;
       }
     }
-    
+
     return cleanedCount;
   } catch (error) {
     console.error('Error cleaning up expired sessions:', error);
