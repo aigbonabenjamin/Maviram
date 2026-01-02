@@ -16,13 +16,7 @@ const LOADER = path.resolve(__dirname, 'src/visual-edits/component-tagger-loader
         },
       ],
     },
-    turbopack: {
-    rules: {
-      "*.{jsx,tsx}": {
-        loaders: [LOADER]
-      }
-    }
-  },
+    turbopack: {},
   webpack: (config, { isServer }) => {
     // Exclude ioredis from client-side bundle
     if (!isServer) {
@@ -54,13 +48,6 @@ const LOADER = path.resolve(__dirname, 'src/visual-edits/component-tagger-loader
     return config;
   },
   // Exclude documentation and script directories from API routes
-  experimental: {
-    turbo: {
-      resolveAlias: {
-        // Prevent these directories from being processed as routes
-      }
-    }
-  },
   // Exclude specific paths from being built as pages
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'].filter(ext => !['md', 'sql'].includes(ext)),
 };
