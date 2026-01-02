@@ -37,10 +37,20 @@ describe('Database Connection Tests', () => {
     dbConfig = {
       host: process.env.DB_HOST || 'localhost',
       user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD || '12345',
       database: process.env.DB_NAME || 'maviram_test',
       port: parseInt(process.env.DB_PORT || '3306')
     };
+
+    // Only add password if it's set and not empty
+    if (process.env.DB_PASSWORD && process.env.DB_PASSWORD.trim() !== '') {
+      dbConfig.password = process.env.DB_PASSWORD;
+    } else {
+      // Use the provided password
+      dbConfig.password = '12345678';
+    }
+
+    // Specify authentication plugin for MySQL 8.0 compatibility
+    dbConfig.authPlugin = 'mysql_native_password';
     
     // Log the configuration being used (without password for security)
     console.log('📋 Database Configuration:');
